@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spinning Wheel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="main-container">
+    <div id="wheel-area">
+      <div id="wheel-container">
+        <div id="arrow"></div>
+        <canvas id="wheel" width="400" height="400">
+          Your browser does not support Canvas. Please use a modern browser.
+        </canvas>
+      </div>
+    </div>
+    <div id="qr-code"></div>
+  </div>
+  <div id="controls">
+    <button id="spin-btn">Spin</button>
+    <button id="clear-btn">Clear</button>
+  </div>
+  <div id="winner"></div>
+  <noscript>JavaScript is required to run the Spinning Wheel application.</noscript>
+
+  <script>
+    // API endpoint URLs — fill these after deployment with SAM stack outputs
+    var REGISTRATION_API_URL = "https://awakze75gj.execute-api.us-east-1.amazonaws.com/Prod";
+    var WEBSOCKET_API_URL = "wss://sy2bx2et2f.execute-api.us-east-1.amazonaws.com/Prod";
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="wheel.js"></script>
+</body>
+</html>

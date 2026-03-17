@@ -1,0 +1,21 @@
+# AWS SAM
+.aws-sam/
+
+# Node
+node_modules/
+package-lock.json
+
+# IDE / Editor
+.vscode/
+.kiro/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log

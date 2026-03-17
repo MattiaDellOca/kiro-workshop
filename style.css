@@ -1,0 +1,140 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  padding: 24px;
+}
+
+#main-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+
+#wheel-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wheel-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+}
+
+#arrow {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 22px solid #fff;
+  z-index: 1;
+}
+
+#wheel {
+  display: block;
+}
+
+#qr-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 160px;
+  min-height: 160px;
+}
+
+#controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+#spin-btn {
+  padding: 12px 48px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background: #36a2eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+#spin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#clear-btn {
+  padding: 12px 48px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background: #FF6384;
+  color: #fff;
+  cursor: pointer;
+}
+
+#clear-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#winner {
+  margin-top: 16px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  min-height: 2rem;
+  text-align: center;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  #main-container {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  #wheel-container {
+    width: 300px;
+    height: 300px;
+  }
+
+  #wheel {
+    width: 300px;
+    height: 300px;
+  }
+}

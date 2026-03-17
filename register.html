@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join the Wheel</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 24px;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+    }
+
+    #form-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #name-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 14px;
+      font-size: 1.1rem;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: #2a2a4e;
+      color: #fff;
+      outline: none;
+    }
+
+    #name-input::placeholder {
+      color: #888;
+    }
+
+    #name-input.error {
+      border-color: #FF6384;
+    }
+
+    #submit-btn {
+      width: 100%;
+      min-height: 48px;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: #36a2eb;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 16px;
+      font-size: 1.1rem;
+    }
+
+    .error-text {
+      color: #FF6384;
+    }
+
+    .success-text {
+      color: #4BC0C0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #winner-display {
+      margin-top: 24px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #celebration {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #FFD700;
+      color: #1a1a2e;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-align: center;
+      z-index: 100;
+    }
+
+    #celebration:not(.hidden) {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Join the Wheel</h1>
+    <div id="form-container">
+      <input id="name-input" type="text" placeholder="Enter your name" autocomplete="off">
+      <button id="submit-btn">Join</button>
+    </div>
+    <div id="status"></div>
+    <div id="winner-display" class="hidden"></div>
+    <div id="celebration" class="hidden"></div>
+  </div>
+
+  <script>
+    window.REGISTRATION_API_URL = 'https://awakze75gj.execute-api.us-east-1.amazonaws.com/Prod';
+    window.WEBSOCKET_API_URL = 'wss://sy2bx2et2f.execute-api.us-east-1.amazonaws.com/Prod';
+  </script>
+  <script>
+    var sessionId = null;
+    var localName = null;
+    var ws = null;
+    var reconnectDelay = 1000;
+
+    var nameInput = null;
+    var submitBtn = null;
+    var formContainer = null;
+    var statusDiv = null;
+    var winnerDisplay = null;
+    var celebrationDiv = null;
+
+    function showStatus(message, type) {
+      statusDiv.textContent = message;
+      statusDiv.className = type === 'error' ? 'error-text' : type === 'success' ? 'success-text' : '';
+    }
+
+    function submitName() {
+      var trimmedName = nameInput.value.trim();
+
+      if (!trimmedName) {
+        showStatus('Please enter your name.', 'error');
+        nameInput.classList.add('error');
+        return;
+      }
+
+      nameInput.classList.remove('error');
+      submitBtn.disabled = true;
+      showStatus('Joining...', '');
+
+      fetch(window.REGISTRATION_API_URL + '/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmedName, sessionId: sessionId })
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Registration failed');
+          localName = trimmedName;
+          formContainer.classList.add('hidden');
+          showStatus("You're in, " + localName + "!", 'success');
+          connectWebSocket();
+        })
+        .catch(function () {
+          showStatus('Something went wrong. Please try again.', 'error');
+          submitBtn.disabled = false;
+        });
+    }
+
+    function connectWebSocket() {
+      ws = new WebSocket(window.WEBSOCKET_API_URL + '?sessionId=' + sessionId);
+
+      ws.onopen = function () {
+        reconnectDelay = 1000;
+      };
+
+      ws.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+
+        if (data.action === 'winner') {
+          if (data.name === localName) {
+            celebrationDiv.textContent = '🎉 YOU WON! 🎉';
+            celebrationDiv.classList.remove('hidden');
+            winnerDisplay.classList.add('hidden');
+          } else {
+            winnerDisplay.textContent = 'Winner: ' + data.name;
+            winnerDisplay.classList.remove('hidden');
+            celebrationDiv.classList.add('hidden');
+          }
+        } else if (data.action === 'clear') {
+          winnerDisplay.classList.add('hidden');
+          celebrationDiv.classList.add('hidden');
+          localName = null;
+          formContainer.classList.remove('hidden');
+          nameInput.value = '';
+          submitBtn.disabled = false;
+          showStatus('New round! Enter your name to join.', '');
+        }
+      };
+
+      ws.onclose = function () {
+        setTimeout(function () {
+          reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+          connectWebSocket();
+        }, reconnectDelay);
+      };
+
+      ws.onerror = function (err) {
+        console.error('WebSocket error:', err);
+      };
+    }
+
+    function init() {
+      nameInput = document.getElementById('name-input');
+      submitBtn = document.getElementById('submit-btn');
+      formContainer = document.getElementById('form-container');
+      statusDiv = document.getElementById('status');
+      winnerDisplay = document.getElementById('winner-display');
+      celebrationDiv = document.getElementById('celebration');
+
+      var params = new URLSearchParams(window.location.search);
+      sessionId = params.get('sessionId');
+
+      if (!sessionId) {
+        formContainer.classList.add('hidden');
+        showStatus('Invalid link. Please scan the QR code again.', 'error');
+        return;
+      }
+
+      submitBtn.addEventListener('click', submitName);
+      nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') submitName();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
