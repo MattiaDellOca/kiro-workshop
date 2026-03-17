@@ -2,6 +2,8 @@
 
 A real-time spinning wheel app where multiple users can join and spin together. Built with AWS SAM, WebSockets, and a simple HTML/JS frontend.
 
+👉 [Try it live](https://dr7rgm820e8u6.cloudfront.net)
+
 ## About
 
 This project was created following the [Kiro](https://kiro.dev) workshop. It was built entirely using spec-driven development — every feature was designed, documented, and implemented through Kiro's spec workflow before writing a single line of code.
